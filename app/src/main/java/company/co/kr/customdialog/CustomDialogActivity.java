@@ -4,13 +4,36 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 
 public class CustomDialogActivity extends Activity implements
         View.OnClickListener {
+
+    /**
+     * 시크바를 담고 있는 레이아웃 객체
+     */
+    private View panel;
+
+    /**
+     * 시크바 객체
+     */
+    private SeekBar seekbar;
+
+    /**
+     * 텍스트뷰
+     */
+    private TextView text01;
+
+    /**
+     * 화면밝기 값
+     */
+    private int brightness = 50;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -21,36 +44,82 @@ public class CustomDialogActivity extends Activity implements
     @Override
     public void onClick(View v) {
         final Dialog loginDialog = new Dialog(this);
-        loginDialog.setContentView(R.layout.custom_dialog);
-        loginDialog.setTitle("로그인 화면");
+        loginDialog.setContentView(R.layout.activity_main);
+        loginDialog.setTitle("Steeting Intensity");
 
-        Button login = (Button) loginDialog.findViewById(R.id.login);
-        Button cancel = (Button) loginDialog.findViewById(R.id.cancel);
-        final EditText username = (EditText) loginDialog.findViewById(R.id.username);
-        final EditText password = (EditText) loginDialog.findViewById(R.id.password);
+        panel = loginDialog.findViewById(R.id.panel01);
+        text01 = (TextView) loginDialog.findViewById(R.id.text01);
+        seekbar = (SeekBar) loginDialog.findViewById(R.id.seekbar01);
+        seekbar.setOnSeekBarChangeListener(new MyOnSeekBarChangeListener());
 
-        login.setOnClickListener(new View.OnClickListener() {
+        // 버튼 이벤트 처리
+        Button showBtn = (Button) loginDialog.findViewById(R.id.showBtn);
+        showBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                if (username.getText().toString().trim().length() > 0 && password.getText().toString().trim().length() > 0) {
-                    Toast.makeText(getApplicationContext(),
-                            "로그인 성공", Toast.LENGTH_LONG).show();
-
-                    loginDialog.dismiss();
-                } else {
-                    Toast.makeText(getApplicationContext(),
-                            "다시 입력하시오", Toast.LENGTH_LONG).show();
-
-                }
+            public void onClick(View view) {
+                showPanel();
             }
         });
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginDialog.dismiss();
-            }
-        });
+
 
         loginDialog.show();
+
     }
+
+
+
+    private void showPanel() {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.translate_left);
+        seekbar.setProgress(this.brightness);
+        panel.setVisibility(View.VISIBLE);
+        panel.startAnimation(animation);
+    }
+
+
+    private void hidePanel() {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.translate_right);
+        panel.startAnimation(animation);
+        panel.setVisibility(View.GONE);
+    }
+
+
+
+
+    class MyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            if (i < 30) {
+                text01.setText("밝기 수준 : 하");
+            }else if (i < 70) {
+                text01.setText("밝기 수준 : 중");
+            }else {
+                text01.setText("밝기 수준 : 상");
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            int i = seekBar.getProgress();
+
+            if (i < 30) {
+                seekBar.setProgress(0);
+            } else if (i < 70) {
+                seekBar.setProgress(50);
+            } else {
+                seekBar.setProgress(100);
+            }
+        }
+    }
+
+
+
+
+
+
 }
